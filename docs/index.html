@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi des Lieux | 100sations</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <span class="logo">🎵</span>
+      <div class="brand-text">
+        <h1>Suivi des Lieux</h1>
+        <span class="subtitle">Release Party Shorty7G & Friends</span>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="salles">
+        <span class="tab-icon">🏛️</span>
+        <span class="tab-text">Les Salles</span>
+      </button>
+      <button class="nav-tab" data-tab="evaluation">
+        <span class="tab-icon">📝</span>
+        <span class="tab-text">Évaluation</span>
+      </button>
+    </nav>
+    <div class="admin-toggle">
+      <button id="btn-admin-mode" class="btn btn-small btn-ghost" title="Mode admin">
+        🔐
+      </button>
+    </div>
+  </header>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- TAB: SALLES -->
+    <section id="tab-salles" class="tab-content active">
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Rechercher une salle..." aria-label="Rechercher">
+          <span class="search-icon">🔍</span>
+        </div>
+        <div class="filters">
+          <select id="filter-statut" aria-label="Filtrer par statut">
+            <option value="">Tous les statuts</option>
+            <option value="A_contacter">À contacter</option>
+            <option value="En_discussion">En discussion</option>
+            <option value="Option">Option</option>
+            <option value="Refus">Refus</option>
+            <option value="Confirme">Confirmé</option>
+          </select>
+          <select id="filter-capacite" aria-label="Filtrer par capacité">
+            <option value="">Toutes capacités</option>
+            <option value="100">100+ personnes</option>
+            <option value="200">200+ personnes</option>
+            <option value="300">300+ personnes</option>
+            <option value="500">500+ personnes</option>
+          </select>
+        </div>
+        <button id="btn-add-venue" class="btn btn-primary admin-only hidden">
+          <span>+</span> Ajouter une salle
+        </button>
+      </div>
+
+      <!-- Venues Grid -->
+      <div id="venues-grid" class="venues-grid">
+        <!-- Chargé dynamiquement -->
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-venues" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement des salles...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-venues" class="empty-state hidden">
+        <span class="empty-icon">🏛️</span>
+        <h3>Aucune salle trouvée</h3>
+        <p>Modifiez vos filtres ou ajoutez une nouvelle salle.</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="error-venues" class="error-state hidden">
+        <span class="error-icon">⚠️</span>
+        <h3>Erreur de chargement</h3>
+        <p id="error-venues-message">Impossible de charger les salles.</p>
+        <button class="btn btn-primary" onclick="loadVenues()">Réessayer</button>
+      </div>
+    </section>
+
+    <!-- TAB: EVALUATION -->
+    <section id="tab-evaluation" class="tab-content">
+      <div class="evaluation-container">
+        <!-- Formulaire d'évaluation -->
+        <div class="evaluation-form-section">
+          <h2>📝 Nouvelle évaluation</h2>
+          <form id="evaluation-form" class="evaluation-form">
+            <div class="form-group">
+              <label for="eval-venue">Salle à évaluer *</label>
+              <select id="eval-venue" required>
+                <option value="">Sélectionner une salle...</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="eval-visitor">Visité par (signature) *</label>
+                <input type="text" id="eval-visitor" placeholder="Votre nom" required>
+              </div>
+              <div class="form-group">
+                <label for="eval-date">Date de visite *</label>
+                <input type="date" id="eval-date" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Note globale * (1-10)</label>
+              <div class="score-input">
+                <input type="range" id="eval-score-global" min="1" max="10" value="5" required>
+                <span class="score-display" id="score-global-display">5</span>
+              </div>
+            </div>
+
+            <h3 class="form-subtitle">Notes détaillées (1-10)</h3>
+            <div class="scores-grid">
+              <div class="form-group">
+                <label>Technique</label>
+                <div class="score-input small">
+                  <input type="range" id="eval-score-technique" min="1" max="10" value="5">
+                  <span class="score-display" id="score-technique-display">5</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Accueil / Communication</label>
+                <div class="score-input small">
+                  <input type="range" id="eval-score-accueil" min="1" max="10" value="5">
+                  <span class="score-display" id="score-accueil-display">5</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Accessibilité</label>
+                <div class="score-input small">
+                  <input type="range" id="eval-score-acces" min="1" max="10" value="5">
+                  <span class="score-display" id="score-acces-display">5</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Concert → Club</label>
+                <div class="score-input small">
+                  <input type="range" id="eval-score-concert-club" min="1" max="10" value="5">
+                  <span class="score-display" id="score-concert-club-display">5</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Rapport Qualité/Prix</label>
+                <div class="score-input small">
+                  <input type="range" id="eval-score-prix" min="1" max="10" value="5">
+                  <span class="score-display" id="score-prix-display">5</span>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="form-subtitle">Observations</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="eval-points-forts">Points forts</label>
+                <textarea id="eval-points-forts" rows="3" placeholder="Ce qui était bien..."></textarea>
+              </div>
+              <div class="form-group">
+                <label for="eval-points-faibles">Points faibles / Risques</label>
+                <textarea id="eval-points-faibles" rows="3" placeholder="Ce qui pose problème..."></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="eval-prix">Prix observé</label>
+                <input type="text" id="eval-prix" placeholder="Ex: 1500 CHF + bar">
+              </div>
+              <div class="form-group">
+                <label for="eval-dispo">Disponibilités observées</label>
+                <input type="text" id="eval-dispo" placeholder="Ex: WE septembre OK">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="eval-contraintes">Contraintes observées</label>
+                <input type="text" id="eval-contraintes" placeholder="Ex: Fermeture 4h">
+              </div>
+              <div class="form-group">
+                <label for="eval-action">Prochaine action</label>
+                <input type="text" id="eval-action" placeholder="Ex: Envoyer devis">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="eval-photos">URLs des photos (séparées par des virgules)</label>
+              <input type="text" id="eval-photos" placeholder="https://..., https://...">
+              <small class="form-hint">Uploadez vos photos sur Google Drive ou Imgur et collez les liens ici</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large" id="btn-submit-review">
+              Enregistrer l'évaluation
+            </button>
+          </form>
+        </div>
+
+        <!-- Historique des évaluations -->
+        <div class="evaluation-history-section">
+          <h2>📋 Historique des évaluations</h2>
+          <div id="evaluation-history" class="evaluation-history">
+            <p class="hint">Sélectionnez une salle pour voir son historique d'évaluations.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal: Détail Salle -->
+  <div id="modal-venue-detail" class="modal">
+    <div class="modal-content modal-large">
+      <button class="modal-close" aria-label="Fermer">&times;</button>
+      <div id="venue-detail-content">
+        <!-- Chargé dynamiquement -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter/Modifier Salle -->
+  <div id="modal-venue-form" class="modal">
+    <div class="modal-content modal-large">
+      <button class="modal-close" aria-label="Fermer">&times;</button>
+      <h2 id="venue-form-title">Ajouter une salle</h2>
+      <form id="venue-form" class="venue-form">
+        <input type="hidden" id="venue-id">
+        
+        <div class="form-section">
+          <h3>Informations générales</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venue-nom">Nom de la salle *</label>
+              <input type="text" id="venue-nom" required placeholder="Ex: Le Groove">
+            </div>
+            <div class="form-group">
+              <label for="venue-ville">Ville / Quartier *</label>
+              <input type="text" id="venue-ville" required placeholder="Ex: Genève - Pâquis">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venue-adresse">Adresse</label>
+              <input type="text" id="venue-adresse" placeholder="Adresse complète">
+            </div>
+            <div class="form-group">
+              <label for="venue-maps">Lien Google Maps</label>
+              <input type="url" id="venue-maps" placeholder="https://maps.google.com/...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="venue-site">Site web</label>
+            <input type="url" id="venue-site" placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Contact</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venue-contact-nom">Nom contact</label>
+              <input type="text" id="venue-contact-nom" placeholder="Ex: Marco">
+            </div>
+            <div class="form-group">
+              <label for="venue-contact-role">Rôle</label>
+              <input type="text" id="venue-contact-role" placeholder="Ex: Responsable booking">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venue-contact-email">Email</label>
+              <input type="email" id="venue-contact-email" placeholder="booking@...">
+            </div>
+            <div class="form-group">
+              <label for="venue-contact-tel">Téléphone</label>
+              <input type="tel" id="venue-contact-tel" placeholder="+41...">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Capacité et type</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venue-capacite-debout">Capacité debout</label>
+              <input type="number" id="venue-capacite-debout" placeholder="Ex: 200">
+            </div>
+            <div class="form-group">
+              <label for="venue-capacite-assise">Capacité assise</label>
+              <input type="number" id="venue-capacite-assise" placeholder="Ex: 100">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="venue-type">Type de lieu</label>
+              <select id="venue-type">
+                <option value="hybride">Hybride (concert + club)</option>
+                <option value="concert">Concert</option>
+                <option value="club">Club</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="venue-concert-club">Concert → Club possible ?</label>
+              <select id="venue-concert-club">
+                <option value="incertain">Incertain</option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="venue-statut">Statut</label>
+            <select id="venue-statut">
+              <option value="A_contacter">À contacter</option>
+              <option value="En_discussion">En discussion</option>
+              <option value="Option">Option</option>
+              <option value="Refus">Refus</option>
+              <option value="Confirme">Confirmé</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Détails pratiques</h3>
+          <div class="form-group">
+            <label for="venue-prix">Prix / Conditions</label>
+            <textarea id="venue-prix" rows="2" placeholder="Ex: Location 1500 CHF + bar..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="venue-dates">Dates possibles</label>
+            <input type="text" id="venue-dates" placeholder="Ex: WE septembre">
+          </div>
+          <div class="form-group">
+            <label for="venue-tech">Technique incluse</label>
+            <textarea id="venue-tech" rows="2" placeholder="Ex: Son inclus, backline possible..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="venue-acces">Accès</label>
+            <input type="text" id="venue-acces" placeholder="Ex: Parking, PMR, transports...">
+          </div>
+          <div class="form-group">
+            <label for="venue-contraintes">Contraintes</label>
+            <textarea id="venue-contraintes" rows="2" placeholder="Ex: Fermeture 4h, voisinage..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Image</h3>
+          <div class="form-group">
+            <label for="venue-image">URL de l'image</label>
+            <input type="url" id="venue-image" placeholder="https://...">
+            <small class="form-hint">Uploadez sur Google Drive ou Imgur et collez le lien ici</small>
+          </div>
+          <div id="venue-image-preview" class="image-preview"></div>
+        </div>
+
+        <div class="form-section">
+          <h3>Admin</h3>
+          <div class="form-group">
+            <label for="venue-created-by">Ajouté par</label>
+            <input type="text" id="venue-created-by" placeholder="Votre nom">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-venue">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Admin Login -->
+  <div id="modal-admin" class="modal">
+    <div class="modal-content modal-small">
+      <button class="modal-close" aria-label="Fermer">&times;</button>
+      <h2>🔐 Mode Admin</h2>
+      <div id="admin-login-form">
+        <p>Entrez le code admin pour accéder aux fonctions d'édition.</p>
+        <div class="form-group">
+          <label for="admin-code-input">Code admin</label>
+          <input type="password" id="admin-code-input" placeholder="Code d'accès">
+        </div>
+        <button class="btn btn-primary" id="btn-admin-login">Se connecter</button>
+      </div>
+      <div id="admin-logged" class="hidden">
+        <p>✅ Mode admin activé</p>
+        <button class="btn btn-secondary" id="btn-admin-logout">Se déconnecter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmer suppression -->
+  <div id="modal-confirm-delete" class="modal">
+    <div class="modal-content modal-small">
+      <h2>⚠️ Confirmer la suppression</h2>
+      <p>Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.</p>
+      <div class="form-actions">
+        <button class="btn btn-secondary" id="btn-cancel-delete">Annuler</button>
+        <button class="btn btn-danger" id="btn-confirm-delete">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
