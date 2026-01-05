@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="description" content="Suivi des lieux pour Release Party Shorty7G & Friends - 100sations">
   <title>Suivi des Lieux | 100sations</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Header -->
-  <header class="header">
+  <header class="header" id="header">
     <div class="header-brand">
       <span class="logo">🎵</span>
       <div class="brand-text">
@@ -30,7 +32,7 @@
       </button>
     </nav>
     <div class="admin-toggle">
-      <button id="btn-admin-mode" class="btn btn-small btn-ghost" title="Mode admin">
+      <button id="btn-admin-mode" class="btn btn-ghost" title="Mode admin">
         🔐
       </button>
     </div>
@@ -46,8 +48,9 @@
       <!-- Filters -->
       <div class="filters-bar">
         <div class="search-box">
-          <input type="text" id="search-input" placeholder="Rechercher une salle..." aria-label="Rechercher">
           <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Rechercher une salle..." aria-label="Rechercher">
+          <span id="search-feedback" class="hidden"></span>
         </div>
         <div class="filters">
           <select id="filter-statut" aria-label="Filtrer par statut">
@@ -66,6 +69,7 @@
             <option value="500">500+ personnes</option>
           </select>
         </div>
+        <span id="venues-counter"></span>
         <button id="btn-add-venue" class="btn btn-primary admin-only hidden">
           <span>+</span> Ajouter une salle
         </button>
@@ -77,7 +81,7 @@
       </div>
 
       <!-- Loading State -->
-      <div id="loading-venues" class="loading-state">
+      <div id="loading-venues" class="loading-state hidden">
         <div class="spinner"></div>
         <p>Chargement des salles...</p>
       </div>
@@ -220,7 +224,10 @@
         <div class="evaluation-history-section">
           <h2>📋 Historique des évaluations</h2>
           <div id="evaluation-history" class="evaluation-history">
-            <p class="hint">Sélectionnez une salle pour voir son historique d'évaluations.</p>
+            <div class="empty-history">
+              <span class="empty-icon">📋</span>
+              <p>Sélectionnez une salle pour voir son historique</p>
+            </div>
           </div>
         </div>
       </div>
@@ -241,7 +248,7 @@
   <div id="modal-venue-form" class="modal">
     <div class="modal-content modal-large">
       <button class="modal-close" aria-label="Fermer">&times;</button>
-      <h2 id="venue-form-title">Ajouter une salle</h2>
+      <h2 id="venue-form-title">➕ Ajouter une salle</h2>
       <form id="venue-form" class="venue-form">
         <input type="hidden" id="venue-id">
         
@@ -395,15 +402,18 @@
       <button class="modal-close" aria-label="Fermer">&times;</button>
       <h2>🔐 Mode Admin</h2>
       <div id="admin-login-form">
-        <p>Entrez le code admin pour accéder aux fonctions d'édition.</p>
+        <p style="color: var(--text-light); font-size: 0.875rem; margin-bottom: 1.25rem;">
+          Entrez le code admin pour accéder aux fonctions d'édition.
+        </p>
         <div class="form-group">
           <label for="admin-code-input">Code admin</label>
           <input type="password" id="admin-code-input" placeholder="Code d'accès">
         </div>
-        <button class="btn btn-primary" id="btn-admin-login">Se connecter</button>
+        <button class="btn btn-primary btn-large" style="width: 100%;" id="btn-admin-login">Se connecter</button>
       </div>
-      <div id="admin-logged" class="hidden">
-        <p>✅ Mode admin activé</p>
+      <div id="admin-logged" class="hidden" style="text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+        <p style="font-weight: 600; margin-bottom: 1.5rem;">Mode admin activé</p>
         <button class="btn btn-secondary" id="btn-admin-logout">Se déconnecter</button>
       </div>
     </div>
@@ -413,8 +423,10 @@
   <div id="modal-confirm-delete" class="modal">
     <div class="modal-content modal-small">
       <h2>⚠️ Confirmer la suppression</h2>
-      <p>Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.</p>
-      <div class="form-actions">
+      <p style="color: var(--text-light); margin: 1rem 0 1.5rem;">
+        Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.
+      </p>
+      <div class="form-actions" style="border: none; padding-top: 0; margin-top: 0;">
         <button class="btn btn-secondary" id="btn-cancel-delete">Annuler</button>
         <button class="btn btn-danger" id="btn-confirm-delete">Supprimer</button>
       </div>
