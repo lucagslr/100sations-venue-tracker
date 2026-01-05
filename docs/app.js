@@ -10,7 +10,7 @@
 // CONFIGURATION
 // ============================================
 
-// ⚠️ REMPLACEZ CETTE URL PAR VOTRE URL /exec APPS SCRIPT ⚠️
+// 🚀 API Render (PostgreSQL)
 const API_BASE = 'https://one00sations-venue-tracker-api.onrender.com';
 
 // ============================================
@@ -173,37 +173,9 @@ function setButtonLoading(btn, loading, originalText = '') {
 // API FUNCTIONS
 // ============================================
 
-function jsonpRequest(url) {
-  return new Promise((resolve, reject) => {
-    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-    const script = document.createElement('script');
-    
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error('Request timeout'));
-    }, 30000);
-    
-    function cleanup() {
-      clearTimeout(timeout);
-      delete window[callbackName];
-      script.remove();
-    }
-    
-    window[callbackName] = (data) => {
-      cleanup();
-      resolve(data);
-    };
-    
-    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
-    script.onerror = () => {
-      cleanup();
-      reject(new Error('Erreur de connexion'));
-    };
-    
-    document.body.appendChild(script);
-  });
-}
-
+/**
+ * API GET request
+ */
 async function apiGet(action, params = {}) {
   const url = new URL(API_BASE);
   url.searchParams.set('action', action);
@@ -216,39 +188,39 @@ async function apiGet(action, params = {}) {
   try {
     const response = await fetch(url.toString());
     const data = await response.json();
-    if (!data.ok) throw new Error(data.error || 'Erreur API');
-    return data.data;
-  } catch (fetchError) {
-    console.log('Fetch failed, trying JSONP...', fetchError.message);
-    try {
-      const data = await jsonpRequest(url.toString());
-      if (!data.ok) throw new Error(data.error || 'Erreur API');
-      return data.data;
-    } catch (jsonpError) {
-      console.error('JSONP also failed:', jsonpError);
-      throw jsonpError;
+    
+    if (!data.ok) {
+      throw new Error(data.error || 'Erreur API');
     }
+    return data.data;
+  } catch (error) {
+    console.error('API GET Error:', error);
+    throw error;
   }
 }
 
+/**
+ * API POST request
+ */
 async function apiPost(action, body = {}) {
-  const url = new URL(API_BASE);
-  
   try {
-    const response = await fetch(url.toString(), {
+    const response = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, ...body }),
-      mode: 'cors'
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action, ...body })
     });
     
     const data = await response.json();
-    if (!data.ok) throw new Error(data.error || 'Erreur API');
+    
+    if (!data.ok) {
+      throw new Error(data.error || 'Erreur API');
+    }
     return data.data;
   } catch (error) {
-    console.log('POST failed, trying GET fallback...', error.message);
-    const params = { action, ...body };
-    return apiGet(action, params);
+    console.error('API POST Error:', error);
+    throw error;
   }
 }
 
@@ -884,17 +856,6 @@ function adminLogout() {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Check API configuration
-  if (API_BASE === 'COLLE_ICI_TON_URL_APPS_SCRIPT' || !API_BASE.includes('script.google.com')) {
-    document.getElementById('loading-venues').classList.add('hidden');
-    document.getElementById('error-venues').classList.remove('hidden');
-    document.getElementById('error-venues-message').innerHTML = `
-      <strong>Configuration requise !</strong><br>
-      Ouvrez <code>app.js</code> et remplacez la variable <code>API_BASE</code> par votre URL Apps Script /exec.
-    `;
-    return;
-  }
-  
   // Initialize
   updateAdminMode();
   loadVenues();
