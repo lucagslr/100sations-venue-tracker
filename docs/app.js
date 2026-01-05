@@ -11,7 +11,7 @@
 // ============================================
 
 // ⚠️ REMPLACEZ CETTE URL PAR VOTRE URL /exec APPS SCRIPT ⚠️
-const API_BASE = 'https://script.google.com/macros/s/AKfycbz_W7JsJTMW17CO1ZThG9Hc37xLUDX2DUEZKXEjB5uWHw-ZfMEIqQRBFGjEXSzlIq_1/exec';
+const API_BASE = 'https://one00sations-venue-tracker-api.onrender.com';
 
 // ============================================
 // GLOBAL STATE
